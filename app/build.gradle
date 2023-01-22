@@ -7,6 +7,10 @@ android {
     namespace 'com.example.kotlin_weather'
     compileSdk 33
 
+    buildFeatures{
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.kotlin_weather"
         minSdk 28
