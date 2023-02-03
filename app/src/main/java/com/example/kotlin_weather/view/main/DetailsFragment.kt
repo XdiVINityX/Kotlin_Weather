@@ -39,16 +39,22 @@ class DetailsFragment : Fragment(), OnItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val weather = (arguments?.getParcelable<Weather>(BUNDLE_KEY))?: Weather()
-        setTextInValueLabel(weather)
+        arguments?.let {
+            val weather = (it.getParcelable<Weather>(BUNDLE_KEY))?: Weather()
+            setTextInValueLabel(weather)
+        }
     }
 
 
     private fun setTextInValueLabel(weather: Weather) {
-        binding.cityName.text = weather.city.name
-        binding.cityCoordinates.text = "lat ${weather.city.lat}  lon ${weather.city.lon}"
-        binding.temperatureValue.text = "${weather.temperatyre}"
-        binding.feelsLikeValue.text = "${weather.feelsLike}"
+        with(binding) {
+            with(weather){
+            cityName.text = city.name
+            cityCoordinates.text = "lat ${city.lat}  lon ${city.lon}"
+            temperatureValue.text = temperatyre.toString()
+            feelsLikeValue.text = feelsLike.toString()
+            }
+        }
     }
 
     override fun onDestroy() {

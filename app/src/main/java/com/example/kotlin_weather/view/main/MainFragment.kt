@@ -8,20 +8,26 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.kotlin_weather.R
-
 import com.example.kotlin_weather.databinding.FragmentMainBinding
 import com.example.kotlin_weather.domain.Weather
 import com.example.kotlin_weather.view.OnItemViewClickListener
 import com.example.kotlin_weather.viewmodel.AppState
 import com.example.kotlin_weather.viewmodel.MainViewModel
 import com.google.android.material.snackbar.Snackbar
+import java.lang.Thread.sleep
 
 class MainFragment : Fragment(), OnItemViewClickListener {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: MainViewModel
+
     private var isDataSetRussian: Boolean = true
     private var adapter = MainFragmentAdapter()
+
+    private val viewModel: MainViewModel by lazy{
+       ViewModelProvider(this).get(MainViewModel::class.java)
+    }
+
+
 
 
     companion object {
@@ -32,7 +38,7 @@ class MainFragment : Fragment(), OnItemViewClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -40,30 +46,28 @@ class MainFragment : Fragment(), OnItemViewClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.mainFragmentRecyclerView.adapter = adapter
 
-        adapter.setOnItemViewClickListener(this)
+        with(binding) {
+            mainFragmentRecyclerView.adapter = adapter
+            adapter.setOnItemViewClickListener(this@MainFragment)
+            viewModel.getLiveData().observe(viewLifecycleOwner, Observer<AppState> {
+                renderData(it)
+            })
+            showData()
 
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        viewModel.getLiveData().observe(viewLifecycleOwner, Observer<AppState> {
-            renderData(it)
-        })
-        viewModel.getWeatherFromLocalRussianSource()
-
-        //переключение русского списка и мирового
-        binding.mainFragmentFAB.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
+            //переключение русского списка и мирового
+            mainFragmentFAB.setOnClickListener {
                 isDataSetRussian = !isDataSetRussian
                 if (isDataSetRussian) {
+                    mainFragmentFAB.setImageResource(R.drawable.ic_russia)
                     viewModel.getWeatherFromLocalRussianSource()
-                    binding.mainFragmentFAB.setImageResource(R.drawable.ic_russia)
                 } else {
+                    mainFragmentFAB.setImageResource(R.drawable.ic_earth)
                     viewModel.getWeatherFromLocalWorldSource()
-                    binding.mainFragmentFAB.setImageResource(R.drawable.ic_earth)
+
                 }
             }
-
-        })
+        }
     }
 
     private fun renderData(appState: AppState) {
@@ -71,20 +75,49 @@ class MainFragment : Fragment(), OnItemViewClickListener {
             is AppState.Error -> {
                 binding.mainFragmentLoadingLayout.visibility = View.GONE
                 val throwable = appState.error
-                Snackbar.make(binding.root, "Ошибка загрузки", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, "Ошибка загрузки $throwable" , Snackbar.LENGTH_LONG).show()
             }
             AppState.Loading -> {
-                binding.mainFragmentLoadingLayout.visibility = View.VISIBLE
+                with(binding){
+                    mainFragmentLoadingLayout.visibility = View.VISIBLE
+                    mainFragmentFAB.visibility = View.GONE
+                    mainFragmentRecyclerView.visibility = View.GONE
+                    Thread{
+                        sleep(2000)
+                        root.showSnackbarWithAction(R.string.longLoading,R.string.repeat)
+                    }.start()
+                }
             }
             is AppState.Success -> {
-                Snackbar.make(binding.root, "Первый этап", Snackbar.LENGTH_LONG).show()
-                binding.mainFragmentLoadingLayout.visibility = View.GONE
-                adapter.setWeatherData(appState.weatherData)
-                Snackbar.make(binding.root, "Готово", Snackbar.LENGTH_LONG).show()
+                with(binding){
+                    mainFragmentLoadingLayout.visibility = View.GONE
+                    mainFragmentFAB.visibility = View.VISIBLE
+                    mainFragmentRecyclerView.visibility = View.VISIBLE
+                    adapter.setWeatherData(appState.weatherData)
+                   root.showSnackbarWithoutAction(R.string.ready)
+                }
+
             }
         }
     }
 
+    private fun showData(){
+        if (isDataSetRussian) {
+            viewModel.getWeatherFromLocalRussianSource()
+        } else {
+            viewModel.getWeatherFromLocalWorldSource()
+        }
+    }
+
+    fun View.showSnackbarWithAction(stringTextId: Int, stringActionId: Int) {
+       Snackbar.make(binding.root, stringTextId, Snackbar.LENGTH_INDEFINITE)
+           .setAction(stringActionId) { showData() }
+           .show()
+    }
+
+    fun View.showSnackbarWithoutAction(stringTextId: Int) {
+        Snackbar.make(binding.root, stringTextId, Snackbar.LENGTH_LONG).show()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -101,5 +134,4 @@ class MainFragment : Fragment(), OnItemViewClickListener {
             .add(R.id.fragment_container, DetailsFragment.newInstance(bundle))
             .commit()
     }
-
 }
