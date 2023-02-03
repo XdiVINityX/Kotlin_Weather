@@ -27,13 +27,10 @@ class MainFragmentAdapter:RecyclerView.Adapter<MainFragmentAdapter.MainViewHolde
   inner class MainViewHolder(itemView:View): RecyclerView.ViewHolder(itemView){
         fun render(weather: Weather){
             itemView.findViewById<TextView>(R.id.mainFragmentRecyclerItemTextView).text = weather.city.name
-            itemView.setOnClickListener(object: View.OnClickListener{
-                override fun onClick(v: View?) {
-                    Toast.makeText(itemView.context,"Работает",Toast.LENGTH_LONG).show()
-                    listener.onItemClickNewInstanceDetail(weather)
-
-                }
-            })
+            itemView.setOnClickListener {
+                Toast.makeText(itemView.context, "Работает", Toast.LENGTH_LONG).show()
+                listener.onItemClickNewInstanceDetail(weather)
+            }
         }
     }
 

@@ -16,31 +16,43 @@ class MainViewModel(
 ) :
     ViewModel() {
 
-    fun getLiveData(): LiveData<AppState> {
-        return liveDataToObserve
-    }
+    fun getLiveData() =  liveDataToObserve
 
-   fun getWeatherFromLocalRussianSource(){
+
+
+    fun getWeatherFromLocalRussianSource() {
         getLiveDataFromLocalSource(true)
     }
 
-    fun getWeatherFromLocalWorldSource(){
+    fun getWeatherFromLocalWorldSource() {
         getLiveDataFromLocalSource(false)
     }
 
     private fun getLiveDataFromLocalSource(isRussian: Boolean) {
-        liveDataToObserve.postValue(AppState.Loading)
-        Thread {
-            sleep(2000)
+
+        if (randomNumber() <= 1) {
+            simulationLongLoading()
+        } else {
             if (isRussian) {
                 liveDataToObserve
                     .postValue(AppState.Success(repositoryImpl.getLocalWeatherOfRussianCities()))
-            } else{
+            } else {
                 liveDataToObserve
                     .postValue(AppState.Success(repositoryImpl.getLocalWeatherOfWorldCities()))
             }
-        }.start()
+
+        }
     }
+
+    private fun randomNumber() : Int{
+        return (0..3).random()
+    }
+
+    private fun simulationLongLoading(){
+        liveDataToObserve.postValue(AppState.Loading)
+
+    }
+
 
 
 }
