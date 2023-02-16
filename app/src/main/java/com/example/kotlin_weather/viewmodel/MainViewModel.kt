@@ -30,6 +30,20 @@ class MainViewModel(
 
     private fun getLiveDataFromLocalSource(isRussian: Boolean) {
 
+            if (isRussian) {
+                liveDataToObserve
+                    .postValue(AppState.Success(repositoryImpl.getLocalWeatherOfRussianCities()))
+            } else {
+                liveDataToObserve
+                    .postValue(AppState.Success(repositoryImpl.getLocalWeatherOfWorldCities()))
+            }
+
+
+    }
+
+    //с эмуляцией долгой загрузки
+    /*private fun getLiveDataFromLocalSource(isRussian: Boolean) {
+
         if (randomNumber() <= 1) {
             simulationLongLoading()
         } else {
@@ -42,7 +56,7 @@ class MainViewModel(
             }
 
         }
-    }
+    }*/
 
     private fun randomNumber() : Int{
         return (0..3).random()

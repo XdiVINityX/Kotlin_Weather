@@ -11,6 +11,7 @@ import com.example.kotlin_weather.R
 import com.example.kotlin_weather.databinding.FragmentMainBinding
 import com.example.kotlin_weather.domain.Weather
 import com.example.kotlin_weather.view.OnItemViewClickListener
+import com.example.kotlin_weather.view.details.DetailsFragment
 import com.example.kotlin_weather.viewmodel.AppState
 import com.example.kotlin_weather.viewmodel.MainViewModel
 import com.google.android.material.snackbar.Snackbar
