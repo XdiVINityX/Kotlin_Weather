@@ -34,11 +34,6 @@ class DetailsFragment : Fragment(), WeatherLoaderListener {
         }
     }
 
-
-
-
-
-
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -69,13 +64,14 @@ class DetailsFragment : Fragment(), WeatherLoaderListener {
         super.onViewCreated(view, savedInstanceState)
         //WeatherLoader(this,localWeather.city.lat,localWeather.city.lon).loadWeather()
 
+        LocalBroadcastManager.getInstance(requireActivity())
+            .registerReceiver(receiver, IntentFilter(DETAILS_INTENT_FILTER))
+
         val intent = Intent(requireActivity(),DetailsService::class.java)
         intent.putExtra(LATITUDE_EXTRA,localWeather.city.lat)
         intent.putExtra(LONGITUDE_EXTRA,localWeather.city.lon)
-
         requireActivity().startService(intent)
-        LocalBroadcastManager.getInstance(requireActivity())
-            .registerReceiver(receiver, IntentFilter(DETAILS_INTENT_FILTER))
+
     }
 
     override fun onLoaded(weatherDTO: WeatherDTO) {
@@ -97,6 +93,8 @@ class DetailsFragment : Fragment(), WeatherLoaderListener {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(receiver)
+
     }
 
 

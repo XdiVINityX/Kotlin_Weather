@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.kotlin_weather.BuildConfig
 import com.example.kotlin_weather.repository.WeatherDTO
 import com.google.gson.Gson
 import java.io.BufferedReader
@@ -37,7 +38,7 @@ class DetailsService(name: String = "details") : IntentService(name) {
             urlConnection.requestMethod = "GET"
             urlConnection.addRequestProperty(
                 "X-Yandex-API-Key",
-                "b8f6d2a0-9894-450d-bebd-ced3101409f7"
+                BuildConfig.WEATHER_API_KEY
             )
             urlConnection.connectTimeout = 10000
             val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
