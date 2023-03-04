@@ -7,10 +7,11 @@ import kotlinx.android.parcel.Parcelize
 data class Weather(
     val city: City = getDefaultCity(),
     val temperatyre: Int = -1,
-    val feelsLike: Int = -5
+    val feelsLike: Int = -5,
+    val condiotion: String = "raining"
 ) : Parcelable
 
-private fun getDefaultCity(): City {
+ fun getDefaultCity(): City {
     return City("Moscow", 55.0, 37.0)
 }
 
