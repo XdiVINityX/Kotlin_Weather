@@ -28,9 +28,6 @@ class MainFragment : Fragment(), OnItemViewClickListener {
        ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
-
-
-
     companion object {
         fun newInstance() = MainFragment()
     }
@@ -97,8 +94,8 @@ class MainFragment : Fragment(), OnItemViewClickListener {
                     adapter.setWeatherData(appState.weatherData)
                    root.showSnackbarWithoutAction(R.string.ready)
                 }
-
             }
+            is AppState.SuccessForDetails -> TODO()
         }
     }
 

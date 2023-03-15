@@ -8,7 +8,8 @@ data class Weather(
     val city: City = getDefaultCity(),
     val temperatyre: Int = -1,
     val feelsLike: Int = -5,
-    val condiotion: String = "raining"
+    val condiotion: String = "raining",
+    val icon: String = "ovc_-sn"
 ) : Parcelable
 
  fun getDefaultCity(): City {

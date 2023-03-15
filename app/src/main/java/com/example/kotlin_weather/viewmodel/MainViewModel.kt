@@ -18,8 +18,6 @@ class MainViewModel(
 
     fun getLiveData() =  liveDataToObserve
 
-
-
     fun getWeatherFromLocalRussianSource() {
         getLiveDataFromLocalSource(true)
     }
@@ -58,14 +56,14 @@ class MainViewModel(
         }
     }*/
 
-    private fun randomNumber() : Int{
+   /* private fun randomNumber() : Int{
         return (0..3).random()
     }
 
     private fun simulationLongLoading(){
         liveDataToObserve.postValue(AppState.Loading)
 
-    }
+    }*/
 
 
 

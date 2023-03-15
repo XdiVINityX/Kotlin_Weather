@@ -4,12 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import coil.load
 import com.example.kotlin_weather.R
 import com.example.kotlin_weather.databinding.FragmentDetailsBinding
 import com.example.kotlin_weather.domain.Weather
-import com.example.kotlin_weather.utils.showEr
 import com.example.kotlin_weather.viewmodel.AppState
 import com.example.kotlin_weather.viewmodel.DetailsViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -51,9 +52,8 @@ class DetailsFragment : Fragment(){
         viewModel.getLiveData().observe(viewLifecycleOwner,{
             renderData(it)
         })
-        viewModel.getWeatherFromRemoteSource("https://api.weather.yandex.ru/v2/forecast?lat=${
-            localWeather.city.lat}&lon=${localWeather.city.lon}")
-        //адрес во View не должен генерироваться
+        viewModel.getWeatherFromRemoteSource(localWeather.city.lat,localWeather.city.lon)
+
 
     }
 
@@ -62,27 +62,22 @@ class DetailsFragment : Fragment(){
             is AppState.Error -> { //FIXME
                 binding.loadingLayout.visibility = View.GONE
                 binding.mainView.visibility = View.VISIBLE
-                val throwable = appState.error
-                binding.root.showEr("Eror $throwable","Перезагрузить", {
-                    viewModel.getWeatherFromRemoteSource("https://api.weather.yandex.ru/v2/forecast?lat=${
-                        localWeather.city.lat}&lon=${localWeather.city.lon}")
-                } )
-               // Snackbar.make(binding.root, "Ошибка загрузки $throwable" , Snackbar.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), "упс", Toast.LENGTH_SHORT).show()
+
             }
             is AppState.Loading -> {
-               binding.loadingLayout.visibility = View.VISIBLE
-                binding.mainView.visibility = View.INVISIBLE
+                binding.loadingLayout.visibility = View.VISIBLE
+              //  binding.mainView.visibility = View.INVISIBLE
                 }
-            is AppState.Success -> {
-                binding.loadingLayout.visibility = View.GONE
+            is AppState.SuccessForDetails -> {
                 binding.mainView.visibility = View.VISIBLE
-
+                binding.loadingLayout.visibility = View.INVISIBLE
                 val weatherList = appState.weatherData
-                with(binding){
-                setTextInValueLabel(weatherList[0])
-                root.showSnackbarWithoutAction(R.string.ready)
-                }
+
+                setTextInValueLabel(weatherList)
+                binding.root.showSnackbarWithoutAction(R.string.ready)
             }
+            is AppState.Success -> TODO()
         }
     }
 
@@ -92,9 +87,16 @@ class DetailsFragment : Fragment(){
             cityCoordinates.text = "lat ${localWeather.city.lat}  lon ${localWeather.city.lon}"
             temperatureValue.text = weather.temperatyre.toString()
             feelsLikeValue.text = weather.feelsLike.toString()
-            conditionValue.text = weather.condiotion.toString()
+            conditionValue.text = weather.condiotion
+
+            imageViewHeader.load("https://freepngimg.com/thumb/city/36275-3-city-hd.png")
+
+
         }
     }
+
+
+
 
     fun View.showSnackbarWithoutAction(stringTextId: Int) {
         Snackbar.make(binding.root, stringTextId, Snackbar.LENGTH_LONG).show()
