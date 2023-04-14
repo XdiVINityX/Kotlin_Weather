@@ -38,7 +38,7 @@ class DetailsFragment : Fragment(){
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -52,7 +52,7 @@ class DetailsFragment : Fragment(){
         viewModel.getLiveData().observe(viewLifecycleOwner,{
             renderData(it)
         })
-        viewModel.getWeatherFromRemoteSource(localWeather.city.lat,localWeather.city.lon)
+        getWeather()
 
 
     }
@@ -72,9 +72,9 @@ class DetailsFragment : Fragment(){
             is AppState.SuccessForDetails -> {
                 binding.mainView.visibility = View.VISIBLE
                 binding.loadingLayout.visibility = View.INVISIBLE
-                val weatherList = appState.weatherData
-
-                setTextInValueLabel(weatherList)
+                val weather = appState.weatherData
+                saveWeatherInRoom(weather)
+                setTextInValueLabel(weather)
                 binding.root.showSnackbarWithoutAction(R.string.ready)
             }
             is AppState.Success -> TODO()
@@ -82,6 +82,7 @@ class DetailsFragment : Fragment(){
     }
 
     private fun setTextInValueLabel(weather: Weather) {
+
         with(binding) {
             cityName.text = localWeather.city.name
             cityCoordinates.text = "lat ${localWeather.city.lat}  lon ${localWeather.city.lon}"
@@ -95,6 +96,13 @@ class DetailsFragment : Fragment(){
         }
     }
 
+    private fun getWeather(){
+        viewModel.getWeatherFromRemoteSource(localWeather.city.lat,localWeather.city.lon)
+    }
+
+    private fun saveWeatherInRoom(weather: Weather){
+        viewModel.saveWeather(Weather(localWeather.city,weather.temperatyre,weather.feelsLike,weather.condiotion))
+    }
 
 
 

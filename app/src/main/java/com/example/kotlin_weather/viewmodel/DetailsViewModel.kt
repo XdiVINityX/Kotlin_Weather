@@ -3,6 +3,8 @@ package com.example.kotlin_weather.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.kotlin_weather.MyApp
+import com.example.kotlin_weather.domain.Weather
 import com.example.kotlin_weather.repository.*
 import com.example.kotlin_weather.utils.convertDtoToModel
 import com.google.gson.Gson
@@ -13,11 +15,16 @@ import java.io.IOException
 
 
 class DetailsViewModel(
+    private val historyRepositoryImpl: LocalRepositoryIml = LocalRepositoryIml(MyApp.getHistoryDAO()),
     private val detailsLiveDataToObserve: MutableLiveData<AppState> = MutableLiveData(),
     private val detailsRepositoryImpl: DetailsRepositoryImpl = DetailsRepositoryImpl(
         RemoteDataSource()
     )
 ) : ViewModel() {
+
+    fun saveWeather(weather: Weather){
+        historyRepositoryImpl.saveEntity(weather)
+    }
 
     fun getLiveData() = detailsLiveDataToObserve
 
