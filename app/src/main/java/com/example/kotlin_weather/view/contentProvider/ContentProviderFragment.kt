@@ -4,11 +4,14 @@ package com.example.kotlin_weather.view.contentProvider
 import android.content.pm.PackageManager
 import android.Manifest
 import android.app.AlertDialog
-import android.content.DialogInterface
+import android.content.ContentResolver
+import android.database.Cursor
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.kotlin_weather.databinding.FragmentContentProviderBinding
@@ -44,11 +47,11 @@ class ContentProviderFragment : Fragment() {
                     getContacts()
                 }
                 //если нужно пояснение перед запросом
-                // (Если разрешение не было предоставлено, но пользователь ранее не отозвал его,окно еще не вызывалось)
+                // (Если пользователь отклюнил разрешение разрешение)
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
                     AlertDialog.Builder(it)
                         .setTitle("Доступ к контактам")
-                        .setMessage("Для работы необходимо выдать доступ")
+                        .setMessage("Для работы необходимо выдать доступ, иначе здесь будет пустой экран")
                         .setPositiveButton("Предоставить доступ") { dialog, which ->
                             myRequestPermission()
                         }
@@ -73,15 +76,72 @@ class ContentProviderFragment : Fragment() {
 
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getContacts()
+                } else {
+                    context?.let {
+                        AlertDialog.Builder(it)
+                            .setTitle("Доступ к контактам")
+                            .setMessage("Для работы необходимо выдать доступ")
+                            .setPositiveButton("Предоставить доступ") { dialog, which ->
+                                myRequestPermission()
+                            }
+                            .setNegativeButton("Не предоставлять") { dialog, which ->
+                                dialog.dismiss()
+                               // closeThisFragment()
+                            }
+                            .create()
+                            .show()
+                    }
+                }
+            }
+        }
 
+    }
+
+    private fun closeThisFragment(){
+        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+    }
 
     private fun getContacts(){
+        context?.let {
+            val contentResolver : ContentResolver = it.contentResolver
+            val cursorWithContacts : Cursor? = contentResolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                null,
+                null,
+                null,
+                ContactsContract.Contacts.DISPLAY_NAME+" ASC")
+
+            cursorWithContacts?.let {cursor ->
+                for (i in 0..cursor.count){
+                    if( cursor.moveToPosition(i)){
+                        val nameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                        if (nameIndex >= 0){
+                            val name = cursor.getString(nameIndex)
+                            binding.containerForContacts.addView(TextView(it).apply {
+                                text = name
+                                textSize = 30f
+                            })
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     override fun onDestroy() {
         _binding = null
         super.onDestroy()
     }
-
 
 }
