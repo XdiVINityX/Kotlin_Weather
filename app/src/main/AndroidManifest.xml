@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.INTERNET" > </uses-permission>
     <uses-permission android:name="android.permission.READ_CONTACTS"> </uses-permission>
 
+    <queries>
+        <provider android:authorities="com.example.kotlin_weather.provider" />
+    </queries>
+
 
     <application
         android:name="MyApp"
@@ -31,7 +35,15 @@
                 android:value="" />
         </activity>
 
+        <provider
+            android:authorities="com.example.kotlin_weather.provider"
+            android:name=".EducationContentProvider"
+            android:exported="true"
+            android:enabled="true">
+        </provider>
+
     </application>
+
 
 
 </manifest>
